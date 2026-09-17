@@ -1,0 +1,1 @@
+# obsidian-workshop-proof-of-concept-repo-seb
