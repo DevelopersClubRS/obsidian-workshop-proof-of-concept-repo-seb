@@ -1,0 +1,8 @@
+[Unit]
+Description=Refresh QMD index for the Obsidian vault (new/changed notes -> BM25 + vectors)
+
+[Service]
+Type=oneshot
+Environment=PATH=/home/seb/.nvm/versions/node/v22.22.2/bin:/usr/local/bin:/usr/bin:/bin
+ExecStart=/bin/sh -c 'qmd update && qmd embed'
+Nice=10

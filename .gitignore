@@ -1,0 +1,5 @@
+# local scratch
+*.log
+.DS_Store
+workshop-site-shots/
+__pycache__/

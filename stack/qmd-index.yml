@@ -1,0 +1,36 @@
+# Goes to ~/.config/qmd/index.yml. Edit the absolute paths.
+collections:
+  vault:
+    path: /home/you/Obsidian/MyVault
+    pattern: "**/*.md"
+    ignore:
+      - ".obsidian/**"
+      - ".trash/**"
+      - "_hermes/**"
+      - "00-PeriodicNotes/Templates/**"
+      - "local-debug-scripts/**"
+      - "99-Canvas-tests/**"
+      - "PASTED_IMAGES/**"
+      - "Untitled*.md"
+      - "_meta/backfill/vaultscan/**"          # generated file listings, not knowledge
+    includeByDefault: true
+    context:
+      "/": "Seb's personal Obsidian vault (PARA method). Human-written notes; mixed English and Serbian."
+      "/00-PeriodicNotes": "Daily/weekly periodic notes: journal, daily record, links to work-log entries"
+      "/1 Projects": "Active projects with a deadline or deliverable"
+      "/1 Projects/1-Eqho.AI": "Work at Eqho.AI: work logs, runbooks, incidents, PR notes"
+      "/1 Projects/1-Eqho.AI/WORK-LOG-ENTRIES": "Daily engineering work-log entries, filed in Monday-aligned W-folders"
+      "/2 Areas": "Ongoing areas of responsibility: career, public speaking, people, finance, self-improvement"
+      "/3 Resources": "Reference material and learning notes by topic (AI, backend, system design, Linux, tools)"
+      "/4 Archives": "Inactive / completed projects and old material"
+      "/_meta": "Vault metadata: knowledge-base overviews, backfill and generated HTML"
+  wiki:
+    path: /home/you/Obsidian/MyVault/_hermes/wiki
+    pattern: "**/*.md"
+    includeByDefault: true
+    context:
+      "/": "Hermes-maintained LLM Wiki: agent-compiled entity/concept pages distilled from the vault, with citations back to source notes"
+models:
+  embed: hf:ggml-org/embeddinggemma-300M-GGUF/embeddinggemma-300M-Q8_0.gguf
+  generate: hf:tobil/qmd-query-expansion-1.7B-gguf/qmd-query-expansion-1.7B-q4_k_m.gguf
+  rerank: hf:ggml-org/Qwen3-Reranker-0.6B-Q8_0-GGUF/qwen3-reranker-0.6b-q8_0.gguf

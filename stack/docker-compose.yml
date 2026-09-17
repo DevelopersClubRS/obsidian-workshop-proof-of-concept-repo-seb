@@ -1,0 +1,29 @@
+# Hermes self-hosted memory stack — Hindsight (memory provider for Hermes Agent)
+# Ollama runs natively on the host (GPU, no sudo) — see ~/.config/systemd/user/ollama.service
+name: hermes-stack
+
+services:
+  hindsight:
+    image: ghcr.io/vectorize-io/hindsight:latest
+    container_name: hindsight
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8888:8888"   # Memory API (Hermes talks to this)
+      - "127.0.0.1:9999:9999"   # Control-plane web UI (browse memory banks)
+    extra_hosts:
+      - "host.docker.internal:host-gateway"   # Linux: resolves to docker0 (172.17.0.1), where Ollama listens
+    environment:
+      HINDSIGHT_API_LLM_PROVIDER: ollama
+      HINDSIGHT_API_LLM_BASE_URL: http://host.docker.internal:11434/v1
+      HINDSIGHT_API_LLM_MODEL: ${HINDSIGHT_LLM_MODEL:-qwen3:30b-a3b-instruct-2507-q4_K_M}
+      # Must match Hermes' ollama_num_ctx, otherwise Ollama reloads the model every time the caller switches
+      HINDSIGHT_API_LLM_OLLAMA_NUM_CTX: ${OLLAMA_NUM_CTX:-65536}
+      HINDSIGHT_API_LLM_MAX_CONCURRENT: 1    # one GPU, OLLAMA_NUM_PARALLEL=1
+      HINDSIGHT_API_LLM_TIMEOUT: 600         # local models are slower than cloud APIs
+    volumes:
+      - hindsight-data:/home/hindsight/.pg0      # embedded PostgreSQL (the actual memories)
+      - hindsight-cache:/home/hindsight/.cache   # local embedding + reranker model weights
+
+volumes:
+  hindsight-data:
+  hindsight-cache:
