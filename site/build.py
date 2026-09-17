@@ -15,6 +15,8 @@ FAVICONS = {"hermes-in-the-vault": "%F0%9F%8C%8B", "hermes-managed": "%E2%98%81%
 favicon = FAVICONS.get(src_path.name.replace(".src.html", ""), "%F0%9F%8C%8B")
 
 src = src_path.read_text()
+# <!--INCLUDE:file.css--> pulls in a shared partial so the decks share one stylesheet
+src = re.sub(r"<!--INCLUDE:([\w.-]+)-->", lambda m: (here / m.group(1)).read_text(), src)
 # Code inside <pre class="code" ...><code>RAW</code></pre> is authored raw; escape it here.
 built, n = re.subn(r'(<pre class="code"[^>]*><code>)(.*?)(</code></pre>)',
                    lambda m: m.group(1) + html.escape(m.group(2), quote=False) + m.group(3), src, flags=re.S)

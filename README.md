@@ -14,7 +14,7 @@ Ubuntu, RTX 3080 10 GB, i9-11900K, 62 GB RAM, Docker Desktop.
 | Folder | Contents |
 |---|---|
 | [`docs/`](docs/README.md) | The workshop itself: concepts, install guide, labs, troubleshooting, references, demo log, runbook |
-| [`site/`](site/) | Two web pages: `index.html` (attendee handout) and `managed.html` (deck on managed/cloud alternatives), plus sources and the build script |
+| [`site/`](site/) | Four web pages: `index.html` (attendee handout), plus three keyboard-navigable decks — `managed.html` (cloud/managed alternatives and costs), `compiled-wiki.html` (the LLM wiki pattern) and `agent-memory.html` (memory for agents). Sources, shared CSS/JS and the build script included |
 | [`scripts/`](scripts/) | `hermes-infra.sh` (start the whole stack), `workshop-demo.sh` (live demo presenter), `workshop-site.sh` (serve/check/screenshot the pages) |
 | [`stack/`](stack/) | `docker-compose.yml` for Hindsight, systemd user units for Ollama and the search-index refresh, example QMD config |
 | [`vault-template/`](vault-template/) | What goes in the vault: `AGENTS.md` rules, the LLM Wiki scaffold (`SCHEMA.md`, `index.md`, `log.md`), the deterministic `wiki_check.py`, and three example compiled pages |

@@ -3,7 +3,7 @@
 #
 #   ./workshop-site.sh            serve on http://localhost:8080 and open the browser (Ctrl+C to stop)
 #   ./workshop-site.sh serve 9000 same, on another port
-#   ./workshop-site.sh check      automated checks on index.html + managed.html: loads, HTML, no personal info, links
+#   ./workshop-site.sh check      automated checks on every page: loads, HTML valid, no personal info, links alive
 #   ./workshop-site.sh shots      screenshots (desktop light, desktop dark, phone) into ~/workshop-site-shots
 #
 # Every mode rebuilds index.html first if the source file is newer.
@@ -63,7 +63,7 @@ mode_serve() {
   PORT="$(free_port "$want")"
   [ "$PORT" != "$want" ] && warn "Port $want is busy, using $PORT"
   local url="http://localhost:$PORT/"
-  bold "Serving the workshop pages: handout $url · managed deck ${url}managed.html"
+  bold "Serving: handout $url · decks ${url}managed.html · ${url}compiled-wiki.html · ${url}agent-memory.html"
   echo "  Things to try: dark mode, phone width (DevTools Ctrl+Shift+M), Copy buttons,"
   echo "  tick the prep checklist and reload, type 'docker' in the troubleshooting filter."
   echo "  Press Ctrl+C to stop."
@@ -79,7 +79,7 @@ mode_check() {
   local url="http://127.0.0.1:$PORT/"
 
   local PAGE name
-  for PAGE in "$SITE/index.html" "$SITE/managed.html"; do
+  for PAGE in "$SITE/index.html" "$SITE/managed.html" "$SITE/compiled-wiki.html" "$SITE/agent-memory.html"; do
   [ -f "$PAGE" ] || continue
   name="$(basename "$PAGE")"
   echo; bold "━━ $name"

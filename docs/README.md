@@ -31,6 +31,19 @@ It covers which layer moves off the machine, the accounts matrix, the measured t
 (16 models, Light/Typical/Heavy), a stack calculator, plans, memory/hosting/search add-ons, six example stacks and
 sources. Prices checked 16 Sep 2026. Preview: https://claude.ai/artifact/CCqdQmbHDg3bLQcze6u7j2
 - **Present:** `~/workshop-site.sh`, then open `/managed.html`. ↓/Space/PageDown to advance, F for full screen.
+## Concept decks
+Two more 12-slide presentations in `site/`, same look and keyboard navigation, for talks that aren't a hands-on lab:
+- **`compiled-wiki.html`** — *The Compiled Wiki*: the LLM wiki pattern, Karpathy's gist quoted from the primary
+  source, what the evidence actually shows (GraphRAG win rates, one industry preprint, nothing peer-reviewed),
+  the 171-commit lint replay where 47 defects sat unnoticed, three myths to stop repeating, ten implementations,
+  and when not to compile. Preview: https://claude.ai/artifact/L3sQyVZ7XFE8F9wsACCnGA
+- **`agent-memory.html`** — *What the Agent Remembers*: the CoALA taxonomy, why context windows aren't memory,
+  how six systems work, contested benchmarks, memory poisoning (34–67% attack success) alongside the three false
+  memories our own agent stored, hygiene, and a cheap ablation test.
+  Preview: https://claude.ai/artifact/55ZmrtS5NqNimyAHtNGQHi
+
+All four pages share `site/_deck-base.css` and `site/_deck-nav.js`, injected at build time.
+
 - **Refresh prices:** edit the `MODELS` table in `site/hermes-managed.src.html`, then
   `cd site && python3 build.py hermes-managed.src.html /tmp/artifact.html managed.html`. Watch the GPT-5.6 Sol promo
   (to 21 Nov 2026) and Gemini 3.8 Flash doubling on 1 Jan 2027.

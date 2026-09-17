@@ -1,0 +1,381 @@
+<title>The Compiled Wiki</title>
+<meta name="description" content="Presentation on the LLM wiki pattern: compiling notes into a maintained, cited wiki instead of retrieving chunks per question, with the evidence, the failure modes and when not to use it.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400;1,6..72,500&family=Schibsted+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap">
+<style>
+<!--INCLUDE:_deck-base.css-->
+
+/* deck-specific: the compile pipeline, pull quotes and evidence tiers */
+.pipe { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 2px; }
+.pipe .step { background: var(--surface); padding: 16px 18px; display: grid; gap: 8px; align-content: start; border-top: 3px solid var(--rule); }
+.pipe .step.own { border-top-color: var(--s2); }
+.pipe .step.human { border-top-color: var(--accent); }
+.pipe .when { font-family: var(--mono); font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+.pipe h3 { font-family: var(--display); font-weight: 500; font-size: 1.3rem; line-height: 1.1; }
+.pipe p { font-size: 0.9rem; color: var(--ink-2); line-height: 1.4; }
+.pipe code { font-size: 0.8em; }
+@media (max-width: 900px) { .pipe { grid-template-columns: minmax(0, 1fr); } }
+.pull { font-family: var(--display); font-style: italic; font-size: clamp(1.4rem, 2.8vw, 2.1rem); line-height: 1.25; max-width: 30ch; }
+.pull cite { display: block; margin-top: 10px; font-family: var(--sans); font-style: normal; font-size: 0.82rem; color: var(--muted); }
+.tier { font-family: var(--mono); font-size: 10px; letter-spacing: 0.06em; text-transform: uppercase; padding: 1px 6px; border-radius: 4px; border: 1px solid; white-space: nowrap; }
+.tier.strong { color: var(--pass); border-color: color-mix(in oklab, var(--pass) 45%, transparent); background: var(--pass-soft); }
+.tier.weak { color: var(--muted); border-color: var(--rule); border-style: dashed; }
+.tier.vendor { color: var(--accent); border-color: currentColor; border-style: dashed; }
+.myth { display: grid; gap: 0; border-top: 1.5px solid var(--ink); }
+.myth-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); gap: 10px 40px; padding: 18px 0; border-bottom: 1px solid var(--rule); align-items: baseline; }
+.myth-row .said { font-family: var(--display); font-style: italic; font-size: 1.15rem; line-height: 1.3; }
+.myth-row .truth { font-size: 0.95rem; color: var(--ink-2); }
+.myth-row .truth strong { color: var(--ink); }
+@media (max-width: 700px) { .myth-row { grid-template-columns: minmax(0, 1fr); } }
+</style>
+<!--BODY-->
+<main class="deck" id="deck">
+
+  <!-- 1 -->
+  <section class="slide title" id="s-title" aria-label="Title">
+    <div class="frame">
+      <span class="label">Workshop companion · Hermes + Obsidian · 17 Sep 2026</span>
+      <h1>The Compiled Wiki</h1>
+      <p class="dek">RAG rediscovers on every question. A wiki accumulates.</p>
+      <p class="lead">The LLM wiki pattern: what it is, where it came from, what the evidence actually shows, and the bookkeeping problem that decides whether it works. Includes what happened when we ran it on a real 2,330-note vault.</p>
+      <div class="facts">
+        <div class="fact"><span class="v">4 Apr 2026</span><span class="d">Karpathy publishes the <code>llm-wiki</code> gist; ~10 implementations follow within months</span></div>
+        <div class="fact"><span class="v">13 of 23</span><span class="d">wikilinks the agent wrote in our run pointed at nothing</span></div>
+        <div class="fact"><span class="v">47</span><span class="d">defects never noticed in one real wiki, median 16 days live</span></div>
+      </div>
+      <span class="label">Press ↓, Space or PageDown to advance · F for full screen</span>
+    </div>
+  </section>
+
+  <!-- 2 -->
+  <section class="slide" id="s-problem" aria-label="The problem">
+    <div class="frame">
+      <div class="slide-head">
+        <div class="kicker"><span class="n">02</span><span class="label">The problem</span></div>
+        <h2>Retrieval has no memory of its own work</h2>
+      </div>
+      <div class="two">
+        <div style="display: grid; gap: 28px">
+          <blockquote class="pull">“Most people’s experience with LLMs and documents looks like RAG… This works, but the LLM is rediscovering knowledge from scratch on every question. There’s no accumulation.”<cite>Andrej Karpathy, llm-wiki gist, 4 April 2026</cite></blockquote>
+          <blockquote class="pull">“The tedious part of maintaining a knowledge base is not the reading or the thinking — it’s the bookkeeping… Humans abandon wikis because the maintenance burden grows faster than the value.”<cite>Same gist. Remember this one; it comes back on slide 07</cite></blockquote>
+        </div>
+        <div class="prose">
+          <h3 class="sub">Ask the same question twice</h3>
+          <p>A vector search answers from chunks, then throws the reasoning away. Ask again next month and the model re-derives the same synthesis, at the same cost, with no guarantee of the same answer.</p>
+          <h3 class="sub">The vault has the opposite problem</h3>
+          <p>Our reference vault held 2,330 notes: daily logs, work entries, reading notes. The knowledge is in there, spread across notes written years apart, and nothing connects them.</p>
+          <h3 class="sub">The proposal</h3>
+          <p>Compile once into pages that link to each other and cite their sources, then keep compiling as new material arrives. The artifact is persistent; the cross-references are already there.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3 -->
+  <section class="slide" id="s-pattern" aria-label="The pattern">
+    <div class="frame">
+      <div class="slide-head">
+        <div class="kicker"><span class="n">03</span><span class="label">The pattern</span></div>
+        <h2>Three layers, three operations</h2>
+        <p>Karpathy’s gist is deliberately abstract, and credits Vannevar Bush’s Memex. The shape is simple enough to run by hand.</p>
+      </div>
+      <div class="pipe">
+        <div class="step"><span class="when">Layer 1 · immutable</span><h3>Raw sources</h3><p>Articles, papers, transcripts, or in our case the vault’s own notes. “The LLM reads from them but never modifies them.”</p></div>
+        <div class="step own"><span class="when">Layer 2 · agent-owned</span><h3>The wiki</h3><p>Entity, concept and comparison pages the agent writes and maintains, plus <code>index.md</code> as a catalog and <code>log.md</code> as an append-only record.</p></div>
+        <div class="step human"><span class="when">Layer 3 · yours</span><h3>The schema</h3><p>Conventions, frontmatter, tag taxonomy, thresholds. The contract that keeps the agent consistent across sessions.</p></div>
+        <div class="step"><span class="when">The loop</span><h3>Ingest · Query · Lint</h3><p>Ingest a source (it “might touch 10-15 wiki pages”), answer questions from compiled pages and file good answers back, then lint for contradictions, stale claims and orphans.</p></div>
+      </div>
+      <blockquote class="pull" style="max-width: 46ch">“Obsidian is the IDE; the LLM is the programmer; the wiki is the codebase.”<cite>The analogy that makes the rest obvious: schema is the type system, lint is CI, log.md is the commit history</cite></blockquote>
+      <p class="srcnote">Reported to work “at moderate scale (~100 sources, ~hundreds of pages)” without embedding infrastructure. The widely repeated “400,000 words” figure traces to no primary source; don’t quote it.</p>
+    </div>
+  </section>
+
+  <!-- 4 -->
+  <section class="slide" id="s-hardened" aria-label="A hardened implementation">
+    <div class="frame">
+      <div class="slide-head">
+        <div class="kicker"><span class="n">04</span><span class="label">From idea to rules</span></div>
+        <h2>What a real implementation has to pin down</h2>
+        <p>Hermes ships the pattern as a bundled <code>llm-wiki</code> skill. The interesting part is everything the gist left open.</p>
+      </div>
+      <div class="table-wrap">
+        <table class="wide">
+          <thead><tr><th>Question</th><th>The rule</th><th>Why it exists</th></tr></thead>
+          <tbody>
+            <tr><td>When does something deserve a page?</td><td>It appears in <strong>2+ sources</strong>, or is central to one. Never for passing mentions</td><td>Otherwise the wiki fills with stubs and the index stops being navigable</td></tr>
+            <tr><td>How do I know where a claim came from?</td><td>Provenance markers per paragraph, and <code>sources:</code> in frontmatter</td><td>So a reader can trace any sentence back without re-reading the source</td></tr>
+            <tr><td>What if a source changes?</td><td><strong>SHA-256</strong> of each raw file: unchanged, skip; changed, flag drift</td><td>Re-ingesting 100 sources shouldn’t rewrite 100 pages</td></tr>
+            <tr><td>What about disagreement?</td><td><code>confidence: low</code>, <code>contested: true</code>, and both positions kept with dates</td><td>A wiki that silently overwrites is worse than no wiki</td></tr>
+            <tr><td>What keeps it healthy?</td><td><strong>11 lint checks</strong>: orphans, broken links, index completeness, frontmatter, staleness beyond 90 days, contradictions, drift, pages over 200 lines, tag audit, log rotation</td><td>This is the bookkeeping the humans abandoned</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="aside"><span class="label">Our adaptation</span><span>With an existing vault you don’t copy 2,330 notes into <code>raw/</code>. The vault <em>is</em> the immutable layer, and pages cite notes by wikilink. One paragraph in the schema, and the whole pattern fits an existing Obsidian setup.</span></div>
+    </div>
+  </section>
+
+  <!-- 5 -->
+  <section class="slide" id="s-vs" aria-label="Wiki versus RAG">
+    <div class="frame">
+      <div class="slide-head">
+        <div class="kicker"><span class="n">05</span><span class="label">Comparison</span></div>
+        <h2>Four different machines</h2>
+      </div>
+      <div class="table-wrap">
+        <table class="wide">
+          <thead><tr><th></th><th>Vector RAG</th><th>GraphRAG</th><th>Compiled wiki</th><th>Agent memory</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Unit</strong></td><td>Chunk</td><td>Entity graph + community summaries</td><td>A written page</td><td>A fact about you</td></tr>
+            <tr><td><strong>Built</strong></td><td>At index time, mechanically</td><td>At index time, with an LLM</td><td>Incrementally, by an agent, reviewed by you</td><td>After each conversation</td></tr>
+            <tr><td><strong>Good at</strong></td><td>“Find the passage that says X”</td><td>Global questions over a corpus</td><td>Synthesis you’ll reuse, with citations</td><td>Preferences, decisions, continuity</td></tr>
+            <tr><td><strong>Weak at</strong></td><td>Connecting dots across documents</td><td>Cost: indexing can be prohibitive</td><td>Freshness, and errors that get written down</td><td>Anything you didn’t say out loud</td></tr>
+            <tr><td><strong>Error lifetime</strong></td><td>One query</td><td>Until re-index</td><td><strong>Forever, until someone notices</strong></td><td>Until pruned</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="two">
+        <div class="prose">
+          <h3 class="sub">What the measurements say</h3>
+          <p>Microsoft’s GraphRAG work reports win rates of 72–83% on comprehensiveness and 62–82% on diversity against vector RAG, while vector RAG wins on <em>directness</em>; Microsoft also concedes indexing costs “that may be prohibitive”, which LazyGraphRAG addresses at a fraction of the cost. <span class="tier vendor">vendor-run</span></p>
+          <p>The one head-to-head for this pattern, a Tencent preprint, reports LLM-Wiki beating dense RAG and GraphRAG on multi-hop QA (HotpotQA 0.839 vs 0.764 and 0.771). <span class="tier weak">industry preprint</span></p>
+        </div>
+        <div class="aside"><span class="label">State of the evidence</span><span>Nothing in this literature is peer-reviewed, and the strongest claims come from the people selling the approach. Karpathy himself reports no measurement. Treat the pattern as promising practice, not settled science.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6 -->
+  <section class="slide" id="s-run" aria-label="Our run">
+    <div class="frame">
+      <div class="slide-head">
+        <div class="kicker"><span class="n">06</span><span class="label">What happened to us</span></div>
+        <h2>Good pages, broken bookkeeping</h2>
+        <p>Three notes on one topic, compiled by a local 30B model in 3 min 29 s. No human note was touched.</p>
+      </div>
+      <div class="claims">
+        <div class="claims-head"><span class="label">What the agent produced</span><span class="label">What the checker found</span></div>
+        <div class="claim-row">
+          <blockquote>Three concept pages whose content matched the sources: the four-layer architecture, the ontology questions, the compile-and-lint loop.</blockquote>
+          <p class="ev"><strong>Content: accurate.</strong> Verified line by line against the source notes.</p>
+        </div>
+        <div class="claim-row">
+          <blockquote>Page titles as link text, tags invented on the spot, an index claiming four pages.</blockquote>
+          <p class="ev"><strong>13 of 23 wikilinks dangling</strong>, every tag outside the schema’s taxonomy, and one page that didn’t exist listed in the index.</p>
+        </div>
+        <div class="claim-row">
+          <blockquote>“This concept builds on the Obsidian approach of indexing research…”</blockquote>
+          <p class="ev"><strong>Invented.</strong> The source says nothing of the kind, and the sentence survived two rounds of automated fixing.</p>
+        </div>
+      </div>
+      <div class="two" style="margin-top: 22px">
+        <div class="lever" aria-label="Dangling links across fix rounds">
+          <span class="chart-title">Dangling links, by round</span>
+          <div class="lever-row"><span class="lab">After ingest</span><span><span class="b" style="display:block;width:100%"></span></span><span class="v">13</span></div>
+          <div class="lever-row"><span class="lab">Agent fix 1</span><span><span class="b" style="display:block;width:46%"></span></span><span class="v">6</span></div>
+          <div class="lever-row"><span class="lab">Agent fix 2</span><span><span class="b" style="display:block;width:2%"></span></span><span class="v">0</span></div>
+          <div class="lever-row"><span class="lab">Human pass</span><span><span class="b" style="display:block;width:2%"></span></span><span class="v">0</span></div>
+        </div>
+        <div class="prose">
+          <p>Round 2 reached zero dangling links and <em>silently broke the source citations</em> instead: a check only guards what it checks. The human pass fixed that, removed the invented sentence, and the checker has covered sources ever since.</p>
+          <p class="bigline" style="font-size: 1.5rem">Judgement → the LLM. Mechanics → scripts. Truth → you.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7 -->
+  <section class="slide" id="s-rot" aria-label="Bookkeeping rots silently">
+    <div class="frame">
+      <div class="slide-head">
+        <div class="kicker"><span class="n">07</span><span class="label">The evidence that matters</span></div>
+        <h2>Defects nobody looks for stay live</h2>
+        <p>Someone replayed 171 commits of a real LLM-maintained wiki and measured what happened to its defects.</p>
+      </div>
+      <div class="two">
+        <div class="table-wrap">
+          <table class="mid">
+            <thead><tr><th>In a real wiki’s history</th><th class="r">Result</th></tr></thead>
+            <tbody>
+              <tr><td>Commits replayed</td><td class="r">171</td></tr>
+              <tr><td>Defects the agent happened to notice</td><td class="r">fixed in ~2 days</td></tr>
+              <tr><td>Defects it never saw</td><td class="r"><strong>47 still live</strong></td></tr>
+              <tr><td>How long those had been live</td><td class="r">~16 days median</td></tr>
+              <tr><td>Times the lint step had been run</td><td class="r"><strong>0</strong></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="prose">
+          <h3 class="sub">This is the whole argument</h3>
+          <p>The pattern’s promise is that the agent does the bookkeeping humans abandon. In practice the agent does the bookkeeping it <em>happens to look at</em>, and nobody runs the lint step because nothing forces them to.</p>
+          <p>Our own run says the same thing from the other side: when we asked the model to lint its own wiki, it looped for 120 tool calls and reported “all links resolve” while 13 were broken.</p>
+          <div class="aside"><span class="label">So</span><span>Make the mechanical checks deterministic and run them on a schedule or in CI, exactly like a linter on code. Keep the LLM for judgement: what deserves a page, what contradicts what, how to phrase it.</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8 -->
+  <section class="slide" id="s-myths" aria-label="Myth check">
+    <div class="frame">
+      <div class="slide-head">
+        <div class="kicker"><span class="n">08</span><span class="label">Myth check</span></div>
+        <h2>Three things not to repeat on stage</h2>
+        <p>The most-cited numbers in this debate are misquoted in both directions.</p>
+      </div>
+      <div class="myth">
+        <div class="myth-row">
+          <p class="said">“Studies show LLM-maintained context files degrade quality, while human-maintained ones improve it.”</p>
+          <p class="truth">The paper everyone means is <em>Evaluating AGENTS.md</em> (Feb 2026). It found context files <strong>“does not generally improve task success rates, while increasing inference cost by over 20% on average”</strong>, and that this holds <strong>for both LLM-generated and developer-committed files</strong>. It’s about coding-agent context files, not knowledge wikis. Both halves of the popular claim are wrong.</p>
+        </div>
+        <div class="myth-row">
+          <p class="said">“Karpathy runs a wiki of ~100 articles and 400,000 words.”</p>
+          <p class="truth">Unsourced folklore, repeated across content farms. What the gist actually says is that it works “at moderate scale (~100 sources, ~hundreds of pages)”. Use that.</p>
+        </div>
+        <div class="myth-row">
+          <p class="said">“The wiki pattern is 70× faster than RAG.”</p>
+          <p class="truth">Also unsourced, from a content farm. There is no benchmark behind it. The credible comparisons are the GraphRAG win rates and one industry preprint, both of which measure quality, not speed.</p>
+        </div>
+      </div>
+      <p class="callout">Half the writing about this pattern is recycled SEO content. Check anything before you put it on a slide; that includes this deck’s claims, which are sourced on the last slide.</p>
+    </div>
+  </section>
+
+  <!-- 9 -->
+  <section class="slide" id="s-wrong" aria-label="When not to compile">
+    <div class="frame">
+      <div class="slide-head">
+        <div class="kicker"><span class="n">09</span><span class="label">Limits</span></div>
+        <h2>When a compiled wiki is the wrong tool</h2>
+      </div>
+      <div class="ways">
+        <div class="way">
+          <h3>Infrastructure it doesn’t have</h3>
+          <ul>
+            <li>No access control: it’s a folder of Markdown</li>
+            <li>No transactions. Two agents writing the same page produce a race</li>
+            <li>No audit trail beyond <code>log.md</code> and git</li>
+            <li>RAG still wins for millions of documents, unpredictable queries, real-time data and multi-tenant deployments</li>
+          </ul>
+        </div>
+        <div class="way">
+          <h3>Errors become permanent</h3>
+          <ul>
+            <li>A hallucinated connection is <em>written down</em> and cited by later pages</li>
+            <li>Practitioners report entries that are “confidently wrong” six months on, where nothing was reviewed</li>
+            <li>Rewrites flatten detail and homogenise voice over time</li>
+            <li>One academic trial found the wiki overstated its sources, presenting a workaround as established method</li>
+          </ul>
+        </div>
+        <div class="way">
+          <h3>What separates the successes</h3>
+          <ul>
+            <li>A review gate: nothing gets promoted into the agent’s context unread</li>
+            <li>Thresholds, so the wiki stays small enough to review</li>
+            <li>Deterministic lint on a schedule</li>
+            <li>Git history, so every agent edit is a diff you can reject</li>
+          </ul>
+        </div>
+      </div>
+      <p class="bigline">A compiled wiki is a <em>maintenance</em> commitment, not a one-off import.</p>
+    </div>
+  </section>
+
+  <!-- 10 -->
+  <section class="slide" id="s-impl" aria-label="Implementations">
+    <div class="frame">
+      <div class="slide-head">
+        <div class="kicker"><span class="n">10</span><span class="label">Ecosystem</span></div>
+        <h2>Ten implementations in five months</h2>
+        <p>GitHub stars as of 17 Sep 2026. “Agent-in-loop” means an agent maintains the wiki; “batch” means a compiler produces it.</p>
+      </div>
+      <div class="table-wrap">
+        <table class="wide">
+          <thead><tr><th>Project</th><th>What it is</th><th>Mode</th><th class="r">Stars</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Hermes <code>llm-wiki</code> skill</strong></td><td>Bundled with Hermes Agent: ingest, query, lint, schema template, Obsidian-native</td><td>Agent-in-loop</td><td class="r">ships with Hermes</td></tr>
+            <tr><td><strong>Ar9av/obsidian-wiki</strong></td><td>Python package plus 40 agent skills, adapters for several agents</td><td>Agent-in-loop</td><td class="r">3,421</td></tr>
+            <tr><td><strong>Astro-Han/karpathy-llm-wiki</strong></td><td>A single installable skill: ingest → raw, compile → wiki, lint</td><td>Agent-in-loop</td><td class="r">2,270</td></tr>
+            <tr><td><strong>atomicstrata/llm-wiki-compiler</strong></td><td>npm CLI with citation-traceable output and a linter</td><td>Batch</td><td class="r">2,030</td></tr>
+            <tr><td><strong>nvk/llm-wiki</strong></td><td>Multi-agent parallel research, thesis-driven pages</td><td>Agent-in-loop</td><td class="r">1,297</td></tr>
+            <tr><td><strong>Karpathy LLM Wiki plugin</strong></td><td>Obsidian plugin; answers via PageRank over the link graph, no embeddings</td><td>In-app</td><td class="r">629</td></tr>
+            <tr><td><strong>xoai/sage-wiki</strong></td><td>Single Go binary: compiler plus knowledge graph</td><td>Batch</td><td class="r">608</td></tr>
+            <tr><td><strong>shannhk/llm-wikid</strong></td><td>Obsidian vault template with schema and bias checks</td><td>Agent-in-loop</td><td class="r">420</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="srcnote">Two unrelated projects are both called “llm-wiki-compiler”. A Hermes memory provider backed by an Obsidian wiki also exists but has no adoption yet; don’t present it as proven.</p>
+    </div>
+  </section>
+
+  <!-- 11 -->
+  <section class="slide" id="s-start" aria-label="How to start">
+    <div class="frame">
+      <div class="slide-head">
+        <div class="kicker"><span class="n">11</span><span class="label">Practice</span></div>
+        <h2>Start with three notes, not three thousand</h2>
+      </div>
+      <ol class="levers">
+        <li><strong>Write the schema first.</strong> Domain, file naming, frontmatter, a 10–20 tag taxonomy, page thresholds. The agent obeys a written contract far better than an instruction in chat.</li>
+        <li><strong>Point it at your vault, not a copy.</strong> With an existing vault the notes are the immutable layer; pages cite them by wikilink and nothing gets duplicated.</li>
+        <li><strong>Compile one topic.</strong> Three short notes, at most five pages, each with at least two outbound links. Then read the pages: that’s where you learn what your schema forgot.</li>
+        <li><strong>Add a deterministic checker before the second compile.</strong> Dangling links, off-taxonomy tags, frontmatter, source links, orphan pages. Exit non-zero, and run it on a timer or in CI.</li>
+        <li><strong>Feed the checker’s output back to the agent</strong>, then re-run it. Ours converged in two rounds. Review the diff in git either way.</li>
+        <li><strong>Decide your review gate.</strong> Nothing enters the agent’s permanent context unread, or you get a knowledge base of confident nonsense in six months.</li>
+      </ol>
+      <div class="aside"><span class="label">Cost, measured</span><span>Compiling three notes took 10 LLM calls at ~32K tokens each: about $0.20 on a mid-priced cloud model, or a few minutes of GPU time locally. The expensive part is your review, which is also the part that makes it work.</span></div>
+    </div>
+  </section>
+
+  <!-- 12 -->
+  <section class="slide" id="s-sources" aria-label="Sources">
+    <div class="frame">
+      <div class="slide-head">
+        <div class="kicker"><span class="n">12</span><span class="label">Sources · checked 17 Sep 2026</span></div>
+        <h2>Where this comes from</h2>
+      </div>
+      <div class="sources">
+        <div>
+          <h3>The pattern</h3>
+          <ul>
+            <li><a href="https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f">Karpathy, <code>llm-wiki</code> gist</a> — every quote here is from this file <span class="tier strong">primary</span></li>
+            <li><a href="https://hermes-agent.nousresearch.com/docs/user-guide/skills/bundled/research/research-llm-wiki">Hermes <code>llm-wiki</code> skill docs</a> · <a href="https://github.com/NousResearch/hermes-agent/blob/main/skills/research/llm-wiki/SKILL.md">SKILL.md</a></li>
+            <li><a href="https://github.com/Ar9av/obsidian-wiki">Ar9av/obsidian-wiki</a> · <a href="https://github.com/Astro-Han/karpathy-llm-wiki">Astro-Han</a> · <a href="https://github.com/atomicstrata/llm-wiki-compiler">atomicstrata</a> · <a href="https://community.obsidian.md/plugins/karpathywiki">Obsidian plugin</a></li>
+          </ul>
+        </div>
+        <div>
+          <h3>Comparisons and measurement</h3>
+          <ul>
+            <li><a href="https://www.microsoft.com/en-us/research/blog/graphrag-unlocking-llm-discovery-on-narrative-private-data/">Microsoft: GraphRAG</a> · <a href="https://arxiv.org/abs/2404.16130">paper</a> · <a href="https://www.microsoft.com/en-us/research/blog/lazygraphrag-setting-a-new-standard-for-quality-and-cost/">LazyGraphRAG on cost</a> <span class="tier vendor">vendor</span></li>
+            <li><a href="https://arxiv.org/abs/2605.25480">Retrieval as Reasoning: LLM-Wiki (Tencent)</a> <span class="tier weak">preprint</span></li>
+            <li><a href="https://arxiv.org/abs/2607.04576">Cochran: preregistered ablation on a 709-page wiki</a></li>
+            <li><a href="https://arxiv.org/abs/2602.11988">Evaluating AGENTS.md</a> — the paper behind slide 08’s first myth</li>
+            <li><a href="https://github.com/Mograbi/llm-wiki/pull/6">Lint replay over 171 commits</a> — the 47 unnoticed defects</li>
+          </ul>
+        </div>
+        <div>
+          <h3>Critiques</h3>
+          <ul>
+            <li><a href="https://news.ycombinator.com/item?id=47899844">Hacker News discussion</a> — drift, contamination, review gates</li>
+            <li><a href="https://yu-wenhao.com/en/blog/karpathy-zettelkasten-comparison/">Wiki vs Zettelkasten</a> — information loss over rewrites</li>
+            <li><a href="https://effortlessacademic.com/andrej-karpathys-llm-wiki-doesnt-work-for-academics/">“Doesn’t work for academics”</a> — overstated sources</li>
+            <li><a href="https://pub.towardsai.net/andrej-karpathy-killed-rag-or-did-he-the-llm-wiki-pattern-7824d876e790">“Killed RAG, or did he?”</a> — missing RBAC, transactions, audit</li>
+          </ul>
+        </div>
+      </div>
+      <p class="label">Nothing here is peer-reviewed. Vendor-run benchmarks are marked. The “400,000 words” and “70× faster” figures could not be traced to any primary source and are excluded</p>
+    </div>
+  </section>
+</main>
+
+<nav class="deckbar" aria-label="Slide navigation">
+  <button type="button" id="prev" aria-label="Previous slide">↑</button>
+  <button type="button" id="next" aria-label="Next slide">↓</button>
+  <span class="where" id="where" aria-live="polite"><b>01 / 12</b> The Compiled Wiki</span>
+  <span class="track" aria-hidden="true"><i id="progress"></i></span>
+  <button type="button" id="fs" class="hint">Full screen</button>
+</nav>
+
+<script>
+<!--INCLUDE:_deck-nav.js-->
+</script>
